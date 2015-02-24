@@ -152,6 +152,15 @@ public class JpaRepositoryFactoryUnitTests {
 		}
 	}
 
+	@Test
+	public void usesConfiguredRepositoryBaseClass() {
+
+		factory.setRepositoryBaseClass(CustomJpaRepository.class);
+
+		SampleRepository repository = factory.getRepository(SampleRepository.class);
+		assertEquals(CustomJpaRepository.class, ((Advised) repository).getTargetClass());
+	}
+
 	private interface SimpleSampleRepository extends JpaRepository<User, Integer> {
 
 		@Transactional
@@ -195,4 +204,11 @@ public class JpaRepositoryFactoryUnitTests {
 	private interface QueryDslSampleRepository extends SimpleSampleRepository, QueryDslPredicateExecutor<User> {
 
 	}
+
+	static class CustomJpaRepository<T, ID extends Serializable> extends SimpleJpaRepository<T, ID> {
+
+		public CustomJpaRepository(JpaEntityInformation<T, ?> entityInformation, EntityManager entityManager) {
+			super(entityInformation, entityManager);
+		}
+	};
 }
